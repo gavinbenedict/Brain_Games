@@ -23,7 +23,7 @@ const GAMES: GameDef[] = [
     title: 'Reaction Speed',
     description: 'Test your reflexes! Click as fast as you can when the screen turns green.',
     color: '#2ECC71',
-    icon: '⚡',
+    icon: '⚡️',
     playable: true,
   },
   {

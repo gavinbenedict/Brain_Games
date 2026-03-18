@@ -17,7 +17,7 @@ export default function Hero() {
       {/* Central Brain SVG */}
       <motion.div
         className="mb-8"
-        animate={{ y: [0, -15, 0], rotate: [0, 3, -3, 0] }}
+        animate={{ y: [0, -15, 0], rotate: [0, 20, -20, 0] }}
         transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut', type: 'tween' }}
       >
         <svg width="160" height="160" viewBox="0 0 100 100">
@@ -76,9 +76,9 @@ export default function Hero() {
       <motion.div
         className="absolute bottom-8"
         animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
+        transition={{ duration: 3, repeat: Infinity }}
       >
-        <span className="text-3xl">👇</span>
+        <span className="text-5xl">👇</span>
       </motion.div>
     </section>
   );

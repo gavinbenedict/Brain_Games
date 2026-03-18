@@ -23,11 +23,26 @@ export default function MemoryMatrix() {
   const [selectedCells, setSelectedCells] = useState<Set<number>>(new Set());
   const [cellsToFind, setCellsToFind] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Refs to avoid stale closures in handleCellClick
+  const levelRef = useRef(level);
+  const scoreRef = useRef(score);
+  const activeCellsRef = useRef(activeCells);
+  const cellsToFindRef = useRef(cellsToFind);
+  
   const { playNote, playPop, playError, playSuccess, playChime } = useAudioContext();
 
   const getCellCount = (lvl: number) => Math.min(3 + lvl, 10);
 
-  const initGrid = useCallback(() => {
+  // Update refs when state changes
+  useEffect(() => {
+    levelRef.current = level;
+    scoreRef.current = score;
+    activeCellsRef.current = activeCells;
+    cellsToFindRef.current = cellsToFind;
+  }, [level, score, activeCells, cellsToFind]);
+
+  const initGrid = useCallback((currentLevel: number) => {
     const cells = GRID_SIZE * GRID_SIZE;
     const newGrid: Cell[] = Array(cells).fill(null).map(() => ({
       active: false,
@@ -35,7 +50,7 @@ export default function MemoryMatrix() {
       correct: null,
     }));
 
-    const count = getCellCount(level);
+    const count = getCellCount(currentLevel);
     const indices = new Set<number>();
     while (indices.size < count) {
       indices.add(Math.floor(Math.random() * cells));
@@ -51,10 +66,10 @@ export default function MemoryMatrix() {
     setCellsToFind(count);
 
     return { newGrid, indices };
-  }, [level]);
+  }, []);
 
-  const startGame = useCallback(() => {
-    const { newGrid } = initGrid();
+  const startGame = useCallback((startLevel: number) => {
+    const { newGrid } = initGrid(startLevel);
     setPhase('showing');
     playPop();
 
@@ -66,12 +81,12 @@ export default function MemoryMatrix() {
     setGrid(revealedGrid);
 
     // Hide after delay based on level
-    const showTime = Math.max(1000, 2500 - (level * 200));
+    const showTime = Math.max(1000, 2500 - (startLevel * 200));
     timerRef.current = setTimeout(() => {
       setGrid(prev => prev.map(cell => ({ ...cell, revealed: false })));
       setPhase('playing');
     }, showTime);
-  }, [initGrid, level, playPop]);
+  }, [initGrid, playPop]);
 
   useEffect(() => {
     return () => {
@@ -79,77 +94,91 @@ export default function MemoryMatrix() {
     };
   }, []);
 
-  const handleCellClick = useCallback((index: number) => {
+  const handleCellClick = useCallback((e: React.MouseEvent, index: number) => {
+    e.stopPropagation();
+    
     if (phase !== 'playing') return;
-    if (selectedCells.has(index)) return;
+    
+    setSelectedCells(prevSelected => {
+      if (prevSelected.has(index)) return prevSelected;
 
-    const newSelected = new Set(selectedCells);
-    newSelected.add(index);
-    setSelectedCells(newSelected);
+      const newSelected = new Set(prevSelected);
+      newSelected.add(index);
+      
+      const isCorrect = activeCellsRef.current.has(index);
 
-    const isCorrect = activeCells.has(index);
+      setGrid(prev => prev.map((cell, i) => {
+        if (i === index) {
+          return { ...cell, revealed: true, correct: isCorrect };
+        }
+        return cell;
+      }));
 
-    setGrid(prev => prev.map((cell, i) => {
-      if (i === index) {
-        return { ...cell, revealed: true, correct: isCorrect };
-      }
-      return cell;
-    }));
+      if (isCorrect) {
+        playNote(index % 8);
 
-    if (isCorrect) {
-      playNote(index % 8);
+        // Check if all found
+        const correctCount = [...newSelected].filter(i => activeCellsRef.current.has(i)).length;
+        if (correctCount === cellsToFindRef.current) {
+          // Level complete!
+          const levelScore = cellsToFindRef.current * 10 * levelRef.current;
+          
+          setScore(prev => {
+            const newScore = prev + levelScore;
+            setHighScore(prevHigh => newScore > prevHigh ? newScore : prevHigh);
+            return newScore;
+          });
 
-      // Check if all found
-      const correctCount = [...newSelected].filter(i => activeCells.has(i)).length;
-      if (correctCount === cellsToFind) {
-        // Level complete!
-        const levelScore = cellsToFind * 10 * level;
-        const newScore = score + levelScore;
-        setScore(newScore);
-        if (newScore > highScore) setHighScore(newScore);
+          playSuccess();
+          setPhase('result');
 
-        playSuccess();
+          // Show all cells
+          setGrid(prev => prev.map(cell => ({
+            ...cell,
+            revealed: true,
+            correct: cell.active ? true : cell.correct,
+          })));
+        }
+      } else {
+        playError();
+        // Wrong cell - game over
         setPhase('result');
-
-        // Show all cells
         setGrid(prev => prev.map(cell => ({
           ...cell,
           revealed: true,
-          correct: cell.active ? true : cell.correct,
+          correct: cell.active ? true : (newSelected.has(prev.indexOf(cell)) ? false : null),
+        })));
+
+        // Re-apply correct statuses
+        setGrid(prev => prev.map((cell, i) => ({
+          ...cell,
+          revealed: true,
+          correct: cell.active ? true : (newSelected.has(i) && !activeCellsRef.current.has(i) ? false : null),
         })));
       }
-    } else {
-      playError();
-      // Wrong cell - game over
-      setPhase('result');
-      setGrid(prev => prev.map(cell => ({
-        ...cell,
-        revealed: true,
-        correct: cell.active ? true : (newSelected.has(prev.indexOf(cell)) ? false : null),
-      })));
+      
+      return newSelected;
+    });
+  }, [phase, playNote, playError, playSuccess]);
 
-      // Re-apply correct statuses
-      setGrid(prev => prev.map((cell, i) => ({
-        ...cell,
-        revealed: true,
-        correct: cell.active ? true : (newSelected.has(i) && !activeCells.has(i) ? false : null),
-      })));
-    }
-  }, [phase, selectedCells, activeCells, cellsToFind, score, highScore, level, playNote, playError, playSuccess]);
-
-  const nextLevel = useCallback(() => {
-    setLevel(prev => prev + 1);
+  const nextLevel = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     playChime();
-  }, [playChime]);
+    setLevel(prev => {
+      const nextLvl = prev + 1;
+      // Start the game with the new level immediately to avoid effect race conditions
+      setTimeout(() => startGame(nextLvl), 0);
+      return nextLvl;
+    });
+  }, [playChime, startGame]);
 
-  // Start next level automatically when level changes (after initial)
-  useEffect(() => {
-    if (level > 1 && phase === 'result') {
-      // Wait a beat, then start
-    }
-  }, [level, phase]);
+  const handleStart = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    startGame(levelRef.current);
+  }, [startGame]);
 
-  const resetGame = useCallback(() => {
+  const resetGame = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     setLevel(1);
     setScore(0);
     setPhase('idle');
@@ -167,7 +196,7 @@ export default function MemoryMatrix() {
   const didWinLevel = phase === 'result' && [...selectedCells].filter(i => activeCells.has(i)).length === cellsToFind;
 
   return (
-    <div className="flex flex-col items-center gap-6">
+    <div className="flex flex-col items-center gap-6" onClick={(e) => e.stopPropagation()}>
       {/* Stats Bar */}
       <div className="flex gap-3 flex-wrap justify-center">
         <div className="sticker-btn px-4 py-2 bg-cartoon-purple text-sm text-cartoon-white cursor-default">
@@ -212,14 +241,14 @@ export default function MemoryMatrix() {
               key={i}
               className="aspect-square cartoon-border cursor-pointer"
               style={{ backgroundColor: getCellColor(cell, i) }}
-              onClick={() => handleCellClick(i)}
+              onClick={(e) => handleCellClick(e, i)}
               whileHover={phase === 'playing' ? { scale: 1.1 } : {}}
               whileTap={phase === 'playing' ? { scale: 0.9 } : {}}
               animate={{
                 backgroundColor: getCellColor(cell, i),
                 scale: cell.revealed && cell.correct === true ? [1, 1.1, 1] : 1,
               }}
-              transition={{ type: 'spring', stiffness: 300 }}
+              transition={{ type: 'tween', duration: 0.3 }}
               disabled={phase !== 'playing' || selectedCells.has(i)}
             />
           ))}
@@ -231,7 +260,7 @@ export default function MemoryMatrix() {
         {phase === 'idle' && (
           <motion.button
             className="sticker-btn px-8 py-3 bg-cartoon-green text-lg"
-            onClick={startGame}
+            onClick={handleStart}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             style={{ fontFamily: 'var(--font-bungee)' }}
@@ -245,10 +274,7 @@ export default function MemoryMatrix() {
         {phase === 'result' && didWinLevel && (
           <motion.button
             className="sticker-btn px-8 py-3 bg-cartoon-green text-lg"
-            onClick={() => {
-              nextLevel();
-              setTimeout(startGame, 100);
-            }}
+            onClick={nextLevel}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             style={{ fontFamily: 'var(--font-bungee)' }}

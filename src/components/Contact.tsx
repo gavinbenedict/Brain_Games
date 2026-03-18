@@ -38,35 +38,42 @@ export default function Contact() {
       >
         <div className="flex flex-col gap-4">
           <motion.a
-            href="mailto:hello@braingames.fun"
-            className="sticker-btn px-6 py-3 bg-cartoon-blue text-base w-full"
+            href="mailto:gavinbenedictoff@gmail.com"
+            className="sticker-btn px-6 py-3 bg-cartoon-red text-base w-full"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => playPop()}
           >
-            📧 hello@braingames.fun
+            💌 Email
+          </motion.a>
+          <motion.a
+            href="https://wa.me/qr/WUABCMZBRXG4K1"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sticker-btn px-6 py-3 bg-cartoon-green text-base w-full"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => playPop()}
+          >
+            💻 Whatsapp
           </motion.a>
 
-          <motion.a
-            href="#"
-            className="sticker-btn px-6 py-3 bg-cartoon-purple text-cartoon-white text-base w-full"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => playPop()}
-          >
-            🐦 Follow on Twitter
-          </motion.a>
 
           <motion.a
-            href="#"
-            className="sticker-btn px-6 py-3 bg-cartoon-pink text-base w-full"
+            href="https://github.com/gavinbenedict"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sticker-btn px-6 py-3 text-base w-full text-white"
+            style={{ backgroundColor: '#003f6e' }}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => playPop()}
           >
-            ⭐ Star on GitHub
+            💻 GitHub
           </motion.a>
+
         </div>
+
       </motion.div>
 
       {/* Footer */}
@@ -77,6 +84,14 @@ export default function Contact() {
         viewport={{ once: true }}
       >
         Made with 🧠 & ❤️ — Brain Games Hub © 2026
+      </motion.p>
+      <motion.p
+        className="mt-12 text-sm font-medium opacity-60 text-center"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 0.6 }}
+        viewport={{ once: true }}
+      >
+        By Gavin N Benedict
       </motion.p>
     </section>
   );

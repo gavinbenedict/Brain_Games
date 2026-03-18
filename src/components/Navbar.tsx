@@ -18,7 +18,7 @@ export default function Navbar() {
   return (
     <motion.nav
       className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-4 backdrop-blur-sm"
-      style={{ backgroundColor: 'rgba(255,243,205,0.85)' }}
+      style={{ backgroundColor: 'rgba(255, 243, 205, 0.15)' }}
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ type: 'spring', stiffness: 100, damping: 20 }}

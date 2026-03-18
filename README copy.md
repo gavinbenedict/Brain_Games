@@ -123,9 +123,9 @@ Edit the `@theme` block in `src/app/globals.css`:
 
 ```css
 @theme {
-  --color-cartoon-yellow: #FFD93D;
-  --color-cartoon-red: #FF6B6B;
-  --color-cartoon-blue: #4ECDC4;
+  --color-cartoon-yellow: #ff0000ff;
+  --color-cartoon-red: #ffd000ff;
+  --color-cartoon-blue: #03fbffff;
   /* ...change any color here */
 }
 ```
