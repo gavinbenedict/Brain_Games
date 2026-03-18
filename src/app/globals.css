@@ -1,0 +1,158 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cartoon-yellow: #FFD93D;
+  --color-cartoon-red: #FF6B6B;
+  --color-cartoon-blue: #4ECDC4;
+  --color-cartoon-purple: #A66CFF;
+  --color-cartoon-pink: #FF61D2;
+  --color-cartoon-orange: #FF9F43;
+  --color-cartoon-green: #2ECC71;
+  --color-cartoon-black: #1A1A2E;
+  --color-cartoon-white: #FFFDF7;
+  --color-cartoon-bg: #FFF3CD;
+  --color-cartoon-bg-dark: #1A1A2E;
+
+  --font-bungee: "Bungee", cursive;
+  --font-body: "Outfit", sans-serif;
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-float-slow: float 8s ease-in-out infinite;
+  --animate-wobble: wobble 2s ease-in-out infinite;
+  --animate-pop: pop 0.3s ease-out;
+  --animate-spin-slow: spin 20s linear infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(3deg); }
+}
+
+@keyframes wobble {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* === Base Styles === */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-cartoon-bg);
+  color: var(--color-cartoon-black);
+  overflow-x: hidden;
+}
+
+/* === Cartoon Utilities === */
+.cartoon-border {
+  border: 4px solid var(--color-cartoon-black);
+  border-radius: 20px;
+}
+
+.cartoon-border-thick {
+  border: 5px solid var(--color-cartoon-black);
+  border-radius: 24px;
+}
+
+.cartoon-shadow {
+  box-shadow: 6px 6px 0px var(--color-cartoon-black);
+}
+
+.cartoon-shadow-sm {
+  box-shadow: 4px 4px 0px var(--color-cartoon-black);
+}
+
+.cartoon-shadow-hover {
+  box-shadow: 8px 8px 0px var(--color-cartoon-black);
+}
+
+/* Sticker Button */
+.sticker-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  border: 4px solid var(--color-cartoon-black);
+  border-radius: 9999px;
+  font-family: var(--font-bungee);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 4px 4px 0px var(--color-cartoon-black);
+  transition: all 0.15s ease;
+  user-select: none;
+  text-decoration: none;
+}
+
+.sticker-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0px var(--color-cartoon-black);
+}
+
+.sticker-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--color-cartoon-black);
+}
+
+/* Text Stroke for headings */
+.text-stroke {
+  -webkit-text-stroke: 3px var(--color-cartoon-black);
+  paint-order: stroke fill;
+}
+
+.text-stroke-sm {
+  -webkit-text-stroke: 2px var(--color-cartoon-black);
+  paint-order: stroke fill;
+}
+
+/* Section panels */
+.section-panel {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-cartoon-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-cartoon-purple);
+  border: 3px solid var(--color-cartoon-black);
+  border-radius: 10px;
+}
+
+/* Smooth selection */
+::selection {
+  background: var(--color-cartoon-yellow);
+  color: var(--color-cartoon-black);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
