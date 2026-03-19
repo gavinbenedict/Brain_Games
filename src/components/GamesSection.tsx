@@ -8,6 +8,11 @@ import ReactionSpeed from '@/games/ReactionSpeed';
 import MemoryMatrix from '@/games/MemoryMatrix';
 import { useAudioContext } from './AudioProvider';
 
+import TypingSpeed from '@/games/TypingSpeed';
+import ColorReflex from '@/games/ColorReflex';
+import FocusTracker from '@/games/FocusTracker';
+import PatternPredict from '@/games/PatternPredict';
+
 interface GameDef {
   id: string;
   title: string;
@@ -40,7 +45,7 @@ const GAMES: GameDef[] = [
     description: 'Race against the clock! Type the words as fast and accurately as you can.',
     color: '#4ECDC4',
     icon: '⌨️',
-    playable: false,
+    playable: true,
   },
   {
     id: 'stroop',
@@ -48,7 +53,7 @@ const GAMES: GameDef[] = [
     description: 'The Stroop test — match the color, not the word! How fast is your brain?',
     color: '#FF6B6B',
     icon: '🎨',
-    playable: false,
+    playable: true,
   },
   {
     id: 'focus',
@@ -56,7 +61,7 @@ const GAMES: GameDef[] = [
     description: 'Follow the moving target with your cursor. Precision meets speed!',
     color: '#FFD93D',
     icon: '🎯',
-    playable: false,
+    playable: true,
   },
   {
     id: 'pattern',
@@ -64,7 +69,7 @@ const GAMES: GameDef[] = [
     description: 'Spot the pattern and predict the next shape. Train your logical thinking!',
     color: '#FF61D2',
     icon: '🔮',
-    playable: false,
+    playable: true,
   },
 ];
 
@@ -139,28 +144,40 @@ export default function GamesSection() {
         <MemoryMatrix />
       </GameModal>
 
-      {/* Coming Soon Modal */}
       <GameModal
-        isOpen={activeGame !== null && !GAMES.find(g => g.id === activeGame)?.playable}
+        isOpen={activeGame === 'typing'}
         onClose={() => setActiveGame(null)}
-        title={`${activeGameDef?.icon || '🎮'} ${activeGameDef?.title || 'Game'}`}
-        color={activeGameDef?.color || '#FFD93D'}
+        title="⌨️ Typing Speed"
+        color="#D6F8F5"
       >
-        <div className="text-center py-8">
-          <motion.div
-            className="text-7xl mb-4"
-            animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity, type: 'tween' }}
-          >
-            🚧
-          </motion.div>
-          <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: 'var(--font-bungee)' }}>
-            Coming Soon!
-          </h3>
-          <p className="text-lg font-medium opacity-70">
-            This game is being built. Check back later! ✨
-          </p>
-        </div>
+        <TypingSpeed />
+      </GameModal>
+
+      <GameModal
+        isOpen={activeGame === 'stroop'}
+        onClose={() => setActiveGame(null)}
+        title="🎨 Color Reflex"
+        color="#FFD5D5"
+      >
+        <ColorReflex />
+      </GameModal>
+
+      <GameModal
+        isOpen={activeGame === 'focus'}
+        onClose={() => setActiveGame(null)}
+        title="🎯 Focus Tracker"
+        color="#FFF3CD"
+      >
+        <FocusTracker />
+      </GameModal>
+
+      <GameModal
+        isOpen={activeGame === 'pattern'}
+        onClose={() => setActiveGame(null)}
+        title="🔮 Pattern Predict"
+        color="#F8D6FA"
+      >
+        <PatternPredict />
       </GameModal>
     </section>
   );
